@@ -3,20 +3,24 @@
 using namespace std;
 
 
-//inventory; slot 0 is for the pen, slot 1 is for the knife, slot 2 is for the glasses
-// slot 3 is for the glyph
+//inventory; slot 0 is for the pen, slot 1 is for the glasses, slot 2 is for the egg
+// slot 3 is for the glyph, slot 4 is for the KNIFE
 string inventory[] = {"[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]"};
 int room = 1;
 
 void shop(string name);
+void monster();
+void battle(string monster);
 
+int health = 10;
 
+string lore = "WE BELIEVE TO HAVE FOUND... AN EXIT.";
 
 int main() {
 	// game vars
   string input;
-	bool dead = false;
 	bool win = false;
+  int turns = 1;
 
   cout << "What is its excellency's's NAME?\n";
   string name;
@@ -27,20 +31,29 @@ int main() {
   cout<< "You hear a man's VOICE come from speakers above: " << endl;
 	cout << "\"Welcome, valued subject, to the Institute For Research On Souls And The Ethereal.\"" << endl << endl;
 
-	do {   // game loop
-		if (dead) {
+	do {   // game loop 
+		if (health < 1) {
 			cout << "hey, you shouldn't be seeing this yet!" << endl;
 		}
 
 		if (win) {
 			cout << "hey, you shouldn't be seeing this yet!" << endl;
 		}
+    if(input.compare("T") == 0) {
+      cout << "You're on turn number " << turns << endl << endl;
+    }
+    turns++;
 
-    if(input.compare("i") == 0) {
-      cout << "Current inventory is:\n\n";
+    if(input.compare("I") == 0) {
+      cout << "Current INVENTORY is:\n\n";
       for(int i = 0; i < 8; i++) {
         cout << inventory[i] << endl;
       }
+      cout << endl;
+    }
+
+    if(input.compare("H") == 0) {
+      cout << "Current HEALTH is: " << health << "/10. \n\n";
       cout << endl;
     }
 
@@ -65,22 +78,28 @@ int main() {
       }
 			break;
 		case 2:
-			cout << "A hallway with pearly white walls and a floor, golden carpet below your feet. You can \ngo SOUTH, EAST, or WEST." << endl;
+			cout << "You're in a HALLWAY with pearly white walls and a floor, golden carpet below your feet. You can \ngo SOUTH, EAST, or WEST." << endl;
       cout << "A grayed-out picture of a man with a goat's head hangs on the wall. The plaque under it shows his name is \n\"THE EXILED ONE.\"" << endl << endl;
 
-			cin >> input;
+			getline(cin, input);
 			if (input == "S")
-				room = 11;
+				room = 666;
 			else if (input == "E")
 				room = 3;
 			else if (input == "W")
 				room = 4;
 			break;
 		case 3:
-			cout << "room three placeholder text" << endl;
-			cin >> input;
+			cout << "You're in another HALLWAY, or perhaps it's a continuation of the first. On your sides, \nbreaking the monotony of the white walls are golden DOORS, all locked except for one." << endl;
+      cout << "Walking in, you notice FILEs strewn about a desk. You may READ them, or move to the EAST or WEST. \n\n" << endl;
+			getline(cin, input);
 			if (input == "W")
 				room = 2;
+      else if (input == "E")
+				room = 6;
+      else if (input.compare("READ FILES") == 0) {
+        cout << lore << endl << endl;
+      }
 			break;
 		case 4:
 			cout << "You're in a BROOM CLOSET. There's a sinking feeling that you're supposed to see this." << endl;
@@ -96,20 +115,50 @@ int main() {
 			room = 4;
 			break;
 		case 6:
+       if(inventory[4].compare("KNIFE") != 0) {
+			  cout << "You're in a BREAK ROOM. The golden carpet under your feet is peppered \nwith coffee stains. On the (noticably off-white) walls, several pieces\n of artwork. Included are portraits of various CEOs (all bald), as well as \nlandscapes of green, grassy hills with a blue sky. There are clouds concentrated on the middle right, \nalong with a blue mountain." << endl;
+        cout << "On a nearby counter is a small, butter-covered KNIFE. There are DOORS to the EAST and WEST. What will you do?\n\n";
+        getline(cin, input);
+        if(input.compare("TAKE KNIFE") == 0) {
+          inventory[4] = "KNIFE";
+          cout << "\nWithout asking for permission, you gave in to greed and took the KNIFE." << endl;
+        }
+      }
+      else {
+        cout << "You're in a BREAK ROOM. The golden carpet under your feet is peppered \nwith coffee stains. On the (noticably off-white) walls, several pieces\n of artwork. Included are portraits of various CEOs (all bald), as well as \nlandscapes of green, grassy hills with a blue sky. There are clouds concentrated on the middle right, \nalong with a blue mountain. \nThe knife is gone." << endl;
+        getline(cin, input);
+      }
 
+      if (input == "W") 
+				room = 3;
+			else if (input == "E")
+				room = 7;
+      
+      break;
+      
 		case 7:
+        cout << "You're in a STAIRWELL. The stairs themselves are going downwards, \nbefore stopping in front of a NORTH-facing DOOR. At the top of the stairs is \nanother DOOR, this one facing WEST. A black, rusted sign informs you that you're in STAIRWELL B. \n\n";
 
+        if (input == "N") 
+				  room = 8;
+			  else if (input == "W")
+				  room = 6;
+        break;
 		case 8:
+      cout << "Walking through the DOOR, you notice the room you're in is completely white, with not so much as \na speck of dust on the wall. More importantly, however, are the screams coming from a corner of the room\n\n";
 
 		case 9:
 
 		case 10:
 
-		case 11:
+    case 11:
+
+		case 666:
 			cout << "Filled with regret, you tried to go BACK. That's not an option. Your choices matter.\nThat is what it means to possess a SOUL." << endl;
 			cout << endl;
 			room = 2;
 		}
+
 
 		cout << endl;
 	} while (input != "q");
@@ -143,12 +192,15 @@ void shop(string name) {
 
           inventory[0] = "[EMPTY]";
           inventory[3] = "POINTED GLYPH of GLOBALITY";
+
+          health = health - 1;
         }
         else {
-          cout << "Nice try, excellency. No PEN, no GLYPH. Only the ambitious succeed." << endl << endl;
+          cout << "Nice try, excellency. No PEN means no CONTRACT, which means no GLYPH. Only the ambitious succeed." << endl << endl;
         }
       }
 
     } while (input.compare("QUIT") != 0);
     room = 4;
   }
+
