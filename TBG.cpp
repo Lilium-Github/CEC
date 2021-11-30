@@ -6,7 +6,7 @@ using namespace std;
 
 
 //inventory; slot 0 is for the pen, slot 1 is for the cake, slot 2 is for the glasses
-// slot 3 is for the glyph, slot 4 is for the KNIFE
+// slot 3 is for the glyph, slot 4 is for the KNIFE, slot 5 is for the EGG
 string inventory[] = {"[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]", "[EMPTY]"};
 int room = 1;
 
@@ -37,7 +37,7 @@ int main() {
 
 	do {   // game loop 
 		if (health < 1) {
-			cout << "hey, you shouldn't be seeing this yet!" << endl;
+			cout << "you died!" << endl;
 			return 0;
 		}
 
@@ -55,6 +55,12 @@ int main() {
         cout << inventory[i] << endl;
       }
       cout << endl;
+    }
+
+		if(input.compare("EAT") == 0 && inventory[1].compare("CAKE") == 0) {
+      health = health + 10;
+			cout << "Cake. It tastes good, as cake tends to do. +10 HP!\n\n";
+			inventory[1] = "[EMPTY]";
     }
 
     if(input.compare("H") == 0) {
@@ -88,7 +94,7 @@ int main() {
 
 			getline(cin, input);
 			if (input == "S")
-				room = 666;
+				room = 1;
 			else if (input == "E")
 				room = 3;
 			else if (input == "W")
@@ -110,10 +116,12 @@ int main() {
 			cout << "You're in a BROOM CLOSET. There's a sinking feeling that you're supposed to see this." << endl;
       cout << "EAST is the way out of the BROOM CLOSET. You hear another VOICE from the NORTH wall." << endl << endl;
 			cin >> input;
-			if (input == "N")
+			if (input == "N") {
 				room = 5;
-			else if (input == "E")
+			}
+			else if (input == "E") {
 				room = 2;
+			}
 			break;
 		case 5:
       shop(name);
@@ -152,22 +160,61 @@ int main() {
 				  room = 6;
         break;
 		case 8:
-      cout << "Walking through the DOOR, you notice the room you're in is completely white, with not so much as \na speck of dust on the wall. More importantly, however, are the screams coming from a corner of the room\n\n";
-
+      
 			if(monster_exists) {
+				cout << "Walking through the DOOR, you notice the room you're in is completely white, with not so much as \na speck of dust on the wall. More importantly, however, are the screams coming from a corner of the room\n\n";
 				monster();
+				if(health < 1) {
+					break;
+				}
+				if(monster_exists == false) {
+					cout << "Blue blood on your hands, you kick the creature's remains to a corner of the room." << endl;
+					cout << "Now's your chance to get a better view of this room." << endl;
+				}
 			}
+			cout << "You appear to be in some kind of containment room. The walls and floor are all completely white and spotless, save for the monster's body. A man in a lab coat, \npresumably the one who screamed earlier, is standing near a wall. looking you up and down."  << endl;
+			cout << "\"Hello there! Ah, um, thank you for saving me. It seems you truly are the superior specimen between the two of you. \"\n";
+
+			if (inventory[2].compare("GLASSES") == 0) {
+				inventory[2] = "NO GLASSES";
+				cout << "\"Thank you for finding my GLASSES, too! I must say, you make a great HERO. I'm afraid all I have for you is an EGG, though.\"" << endl;
+				inventory[5] = "EGG";
+			}
+			else if (inventory[2].compare("NO GLASSES") == 0) {
+				inventory[2] = "NO GLASSES";
+				cout << "\"Thank you for finding my GLASSES, too! I must say, you make a great HERO.\"" << endl;
+			}
+			else {
+				cout << "\"Sorry to ask, but would you happen to know where my glasses are?\"";
+			}
+
 			getline(cin, input);
+
+			if (input == "S") 
+				room = 7;
+			else if (input == "W")
+				room = 9;
+      break;
+
 		case 9:
+			cout << "Upon stepping into this room, you can tell that something is different; rather \nthan standard office tile or carpet, the floor is made of polished marble, perfectly \nwhite other than the speckles of gold you can see." << endl;
 
-		case 10:
+			cout << "A second staircase stands in front of you, ivory steps adorned by gold. It rises \nNORTH into the clouds, and that's when you realize this room has no roof. \nYou're not sure if any of these rooms have had roofs, actually.\nYou can return the way you came by going EAST." << endl;
 
-    case 11:
+			if (input == "N") {
+				cout << "\nYou climb, and climb, and climb.\n" << endl;
+				room = 10;
+			}
+			else if (input == "E")
+				room = 8;
+      break;
 
-		case 666:
-			cout << "Filled with regret, you tried to go BACK. That's not an option. Your choices matter.\nThat is what it means to possess a SOUL." << endl;
-			cout << endl;
-			room = 2;
+		//case 10:
+
+    //case 11:
+
+
+			
 		}
 
 
@@ -204,7 +251,7 @@ void shop(string name) {
           inventory[0] = "[EMPTY]";
           inventory[3] = "POINTED GLYPH of GLOBALITY";
 
-          health = health - 3;
+          health = health - 10;
         }
         else {
           cout << "Nice try, excellency. No PEN means no CONTRACT, which means no GLYPH. Only the ambitious succeed." << endl << endl;
@@ -222,15 +269,19 @@ void monster() {
 	battle(15 + coin);
 }
 
-void battle(int monster_health) {
+void battle(int num) {
 	cout << "Battle Begin!" << endl;
 
 	string input;
-	int player_attack;
-	int monster_attack;
 
+	int player_attack = 0;
+	int monster_attack = 0;
+
+	int monster_health = num;
 	
-	do {
+	while (monster_health > 0 && health > 0) {
+		input = "placeholder";
+
 		cout << "The monster has " << monster_health << " remaining!" << endl;
 		cout << "You have " << health << " remaining!" << endl;
 		cout << "Input 'A' to attack, or 'D' to defend!\n\n";
@@ -238,24 +289,25 @@ void battle(int monster_health) {
 
 		if(input.compare("A") == 0) {
 			if(inventory[4].compare("KNIFE") == 0) {
-				int player_attack = rand() % 5 + 2;
+				player_attack = rand() % 5 + 3;
 				cout << "You slash at the monster, dealing " << player_attack << " damage." << endl;
 			}
 			else {
-				int player_attack = rand() % 3 + 1;
+				player_attack = rand() % 3 + 1;
 				cout << "You punch at the monster, dealing " << player_attack << " damage." << endl;
 			}
-			monster_health = monster_health - player_attack;
-			int monster_attack = rand() % 4 + 2;
+			monster_attack = rand() % 4 + 2;
 			cout << "The creature lunges for you, dealing " << monster_attack << " damage." << endl;
 		}
 		else if(input.compare("D") == 0) {
+			player_attack = 0;
 			cout << "You put your arms up in an attempt to block the monster." << endl;
-			int monster_attack = rand() % 3;
+			monster_attack = rand() % 3;
 			cout << "The creature lunges for you, dealing a measly " << monster_attack << " damage." << endl;
 		}
 
-		health = health - monster_attack;
+		health -= monster_attack;
+		monster_health -= player_attack;
 
 		if(health < 1) {
 			cout << "YOU DIED!\n\n\n\n\n\n\n";
@@ -269,5 +321,5 @@ void battle(int monster_health) {
 			health = health + 1;
 		}
 
-	} while (monster_health > 0 && health > 0);
+	} 
 }
