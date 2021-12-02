@@ -235,7 +235,7 @@ void shop(string name) {
       getline(cin, input);
 
       if(input.compare("CAKE") == 0) {
-        cout << "\"Well met. Go, take some CAKE.\"" << endl << endl;
+        cout << "\"Well met. Go, take some angel food CAKE. \n...that name is quite the coincidence, don't you think?\"" << endl << endl;
 
         inventory[1] = "CAKE";
       }
