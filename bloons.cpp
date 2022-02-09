@@ -11,12 +11,63 @@ using namespace std;
 //2) Why the "-1" in this line: if(currPath < pathPoints.size()-1)? Why is it needed?
 //3) What's the difference between a struct and a class? Could we have used a class instead of a struct?
 
+int ticker = 0;
 
 //create a struct: structs are like classes, but no functions (just variables)
 struct point {
     int x;
     int y;
 };
+
+class bloon {
+private: 
+    int xpos;
+    int ypos;
+    int currPath;
+public:
+    bloon(int x, int y);
+    void move(vector<point>myPath);
+    void draw(sf::RenderWindow& window);
+};
+
+bloon::bloon(int x, int y) {
+    xpos = x;
+    ypos = y;
+    currPath = 0;
+}
+
+void bloon::move(vector<point>myPath) {
+    //pathing algorithm*******************************************************************
+        //this works by moving the x and y coord of our baloon towards the (x,y) of the next point in the path
+        //the path is stored as a series of points in a vector called "pathPoints"
+
+    ticker++; //slow dem bloons down
+    if (ticker % 50 == 0) { //make 30 bigger to slow down baloon more
+
+        //first check if you're at the turning point, move to next point if you are
+        if ((xpos == myPath[currPath].x) && (ypos == myPath[currPath].y))
+            if (currPath < myPath.size() - 1) //don't walk off end of vector!
+                currPath++; //iterate to next point
+
+        //if not there yet, move our x towards x position of next junction
+        if (xpos < myPath[currPath].x)
+            xpos += 1;
+        if (xpos > myPath[currPath].x)
+            xpos -= 1;
+        //and move our y towards y position of next junction
+        if (ypos < myPath[currPath].y)
+            ypos += 1;
+        if (ypos > myPath[currPath].y)
+            ypos -= 1;
+    }//end pathing algorithm**************************************************************
+}
+
+void bloon::draw(sf::RenderWindow& window) {
+    sf::CircleShape bloon(50);
+    bloon.setFillColor(sf::Color(250, 0, 0));
+    bloon.setPosition(xpos, ypos);
+    window.draw(bloon);
+}
 
 
 int main()
@@ -58,17 +109,12 @@ int main()
     // create game window
     sf::RenderWindow window(sf::VideoMode(800, 800), "bloons");
 
-    //balloon variables
-    float xpos = -100; //start off screen
-    float ypos = 400;
-    sf::CircleShape bloon(50);
-    bloon.setFillColor(sf::Color(250, 0, 0));
-    bloon.setPosition(xpos, ypos);
+    
+    
     sf::RectangleShape grass;
     grass.setSize(sf::Vector2f(100, 100));
     grass.setFillColor(sf::Color(50, 250, 50));
     int currPath = 0; //begin heading towards the first point in the pathing vector
-    int ticker = 0;
 
     int map[8][8] = {
         0,0,0,0,0,0,0,0,
@@ -80,6 +126,14 @@ int main()
         0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,
     };
+
+    bloon bloon1(-100, 400);
+    bloon bloon2(-200, 400);
+    bloon bloon3(-300, 400);
+    bloon bloon4(-400, 400);
+    bloon bloon5(-500, 400);
+
+    bloon bloons[5] = { bloon1, bloon2, bloon3, bloon4, bloon5 };
 
     // GAME LOOP----------------------------------------------------------------------------------------
     while (window.isOpen())
@@ -94,33 +148,12 @@ int main()
 
 
 
-        //pathing algorithm*******************************************************************
-        //this works by moving the x and y coord of our baloon towards the (x,y) of the next point in the path
-        //the path is stored as a series of points in a vector called "pathPoints"
-
-        ticker++; //slow dem bloons down
-        if (ticker % 30 == 0) { //make 30 bigger to slow down baloon more
-
-            //first check if you're at the turning point, move to next point if you are
-            if ((xpos == pathPoints[currPath].x) && (ypos == pathPoints[currPath].y))
-                if (currPath < pathPoints.size() - 1) //don't walk off end of vector!
-                    currPath++; //iterate to next point
-
-            //if not there yet, move our x towards x position of next junction
-            if (xpos < pathPoints[currPath].x)
-                xpos += 1;
-            if (xpos > pathPoints[currPath].x)
-                xpos -= 1;
-            //and move our y towards y position of next junction
-            if (ypos < pathPoints[currPath].y)
-                ypos += 1;
-            if (ypos > pathPoints[currPath].y)
-                ypos -= 1;
-        }//end pathing algorithm**************************************************************
+        for (int i = 0; i < 5; i++) {
+            bloons[i].move(pathPoints);
+        }
 
 
         //move da bloon
-        bloon.setPosition(xpos, ypos);
 
         // Render section----------------------------------------------------------------
         window.clear(sf::Color(100,100,100));
@@ -134,7 +167,10 @@ int main()
             }
         }
 
-        window.draw(bloon);
+        for (int i = 0; i < 5; i++) {
+            bloons[i].draw(window);
+        }
+
         window.display();
     }
 
