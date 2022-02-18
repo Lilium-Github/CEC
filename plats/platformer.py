@@ -53,7 +53,7 @@ class platform:
         self.y = y
         self.color = (random.randrange(0,200), random.randrange(100,105), random.randrange(100,255))
         self.offset = 0
-        self.adder = random.choice((-0.5, 0.5))
+        self.adder = random.choice((-1, -0.5, 0, 0.5, 1))
         
         
     def draw(self):
@@ -166,6 +166,10 @@ while not gameover: #GAME LOOP##################################################
             ypos = plats[i].collide(xpos, ypos)
             isOnGround = True
             airJump = False
+            if xpos > 300 or xpos < 700:
+                xpos += plats[i].adder * 2
+            else:
+                offset -= plats[i].adder * 2
         plats[i].update(offset)
         
     for i in range(len(starbag)):
