@@ -133,7 +133,12 @@ int main()
     bloon bloon4(-400, 400);
     bloon bloon5(-500, 400);
 
-    bloon bloons[5] = { bloon1, bloon2, bloon3, bloon4, bloon5 };
+    vector <bloon> bloons;
+    bloons.push_back(bloon1);
+    bloons.push_back(bloon2);
+    bloons.push_back(bloon3);
+    bloons.push_back(bloon4);
+    bloons.push_back(bloon5);
 
     // GAME LOOP----------------------------------------------------------------------------------------
     while (window.isOpen())
