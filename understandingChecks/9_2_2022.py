@@ -1,6 +1,3 @@
-from curses import color_pair
-
-
 class car:
     def __init__(self, make, color, miles):
         self.make = make
@@ -8,7 +5,7 @@ class car:
         self.miles = miles
 
     def printSelf(self):
-        print("I am a", color, make, "and I have driven", miles, "miles.")
+        print("I am a", self.color, self.make, "and I have driven", self.miles, "miles.")
 
     def honking(self):
         print("beep")
