@@ -1,5 +1,4 @@
-from operator import truediv
-from pickle import REDUCE
+from re import S
 import pygame
 import random
 
@@ -14,6 +13,7 @@ COLOR3 = (random.randint(0,250),random.randint(0,250),random.randint(0,250))
 COLOR4 = (random.randint(0,250),random.randint(0,250),random.randint(0,250))
 
 BoxList = []
+LineList = []
 
 LeftPositions = [(100,100),(100, 300),(100, 500),(100, 700)]
 RightPositions = [(550,100),(550, 300),(550, 500),(550, 700)]
@@ -35,12 +35,13 @@ def coll(xpos, ypos, mouseX, mouseY):
     return False
 
 class Box():
-    def __init__(self, pos, rgb):
+    def __init__(self, pos, rgb, side):
         self.pos = pos
         self.rgb = rgb
+        self.side = side
 
         self.connected = False
-        #self.draw = False
+        self.drawing = True
         self.hovering = False
 
     def isHovering(self, mouse):
@@ -55,8 +56,26 @@ class Box():
             pygame.draw.rect(screen, (255,255,255), (self.pos[0], self.pos[1], 100, 50), 5)
         
 for i in range(4):
-    BoxList.append(Box(LeftPositions[i], LeftColors[i]))
-    BoxList.append(Box(RightPositions[i], RightColors[i]))
+    BoxList.append(Box(LeftPositions[i], LeftColors[i], 'l'))
+    BoxList.append(Box(RightPositions[i], RightColors[i], 'r'))
+
+class Line:
+    def __init__(self, start, end, rgb):
+        self.start = start
+        self.end = end
+        self.rgb = rgb
+
+        self.drawing = False
+
+    def update(self, mouse):
+        self.end = self.mouse
+
+    def draw(self):
+        pygame.draw.line(screen, self.rgb, self.start, self.end, 4)
+
+for i in range(4):
+    startpoint = (LeftPositions[i][0] + 95, LeftPositions[i][1] + 25)
+    LineList.append(Line(startpoint, startpoint, LeftColors[i]))
 
 while True:
     #------------------- EVENTS -------------------
@@ -73,12 +92,55 @@ while True:
     #------------------- UPDATE -------------------
     for num, box in enumerate(BoxList):
         box.isHovering(mousePos)
+        
+    lineExist = False
+    currLine = "none"
+
+    for num, line in enumerate(LineList):
+        if line.drawing:
+            lineExist = True
+            line.end = mousePos
+            currLine = line
+        
+    if mouseDown and not lineExist:
+        for num, box in enumerate(BoxList):
+            if box.side == 'l' and box.drawing and coll(box.pos[0], box.pos[1], mousePos[0], mousePos[1]):
+                LineList[int(num / 2)].drawing = True
+
+    elif mouseDown and lineExist:
+        clickedOnBox = False
+        for num, box in enumerate(BoxList):
+            if box.side == 'l' and box.drawing and coll(box.pos[0], box.pos[1], mousePos[0], mousePos[1]):
+                clickedOnBox = True
+                for i, line in enumerate(LineList):
+                    if line.drawing:
+                        line.drawing = False
+                LineList[int(num / 2)].drawing = True
+                currLine = LineList[int(num / 2)]
+            if box.side == 'r' and box.drawing and coll(box.pos[0], box.pos[1], mousePos[0], mousePos[1]):
+                if box.rgb == currLine.rgb:
+                    for i, val in enumerate(BoxList):
+                        if val.rgb == currLine.rgb:
+                            val.drawing = False
+
+                    currLine.drawing = False
+                    currLine = "none"
+
+                else:
+                    currLine.drawing = False
+                    currLine = "none"
+                    lineExist = False
 
     #------------------- RENDER -------------------
     screen.fill((0,0,0))
 
     for num, box in enumerate(BoxList):
-        box.draw()
+        if box.drawing:
+            box.draw()
+
+    for num, line in enumerate(LineList):
+        if line.drawing:
+            line.draw()
 
     pygame.display.flip()
     
