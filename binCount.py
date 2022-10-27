@@ -9,18 +9,29 @@ def binComb(n):
         currBin.append('0')
 
     for _ in range(2 ** n):
-        for i in (len(currBin) - 1, 0, -1):
+        for i in range(len(currBin)):
             if currBin[i] == '1':
                 currBin[i] = '0'
             else:
                 currBin[i] = '1'
                 break
 
-        print(currBin)
+            if currBin == '1':
+                print("uh oh")
 
-        combList.append(currBin)
+        strBin = ""
+        
+        for i in range(len(currBin)):
+            strBin = strBin + currBin[i]
+
+        strBin = strBin[::-1]
+
+        combList.append(strBin)
 
     return combList
 
-print(binComb(3))
-print("lily youre so cool")
+var = input("Enter size string: ")
+
+while var != "0":
+    print(binComb(int(var)))
+    var = input("Enter size string: ")
