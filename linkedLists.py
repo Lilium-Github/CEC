@@ -1,13 +1,15 @@
 class Student:
-    def __init__(self, name, ID, cool, next=None):
+    def __init__(self, name, ID, cool, next=None, last=None):
         self.name = name
         self.ID = ID
+        self.last = last
         self.next = next
         self.cool = cool
 
 class LinkedList:
     def __init__(self):
         self.head = None
+        self.tail = None
         self.length = 0
 
     def insert(self, name, ID, cool):
@@ -18,18 +20,30 @@ class LinkedList:
             while current.next:
                 current = current.next
             current.next = newStudent
+            newStudent.last = current
         else:
             self.head = newStudent
+        self.tail = newStudent
 
-    def printList(self):
-        current = self.head
-        while current:
-            print("Student name:", current.name + ", ID:", current.ID, end=". ")
-            if current.cool:
-                print("They're very cool.")
-            else:
-                print("They're kinda lame.")
-            current = current.next
+    def printList(self, order='f'):
+        if order == 'f': #f for forwards
+            current = self.head
+            while current:
+                print("Student name:", current.name + ", ID:", current.ID, end=". ")
+                if current.cool:
+                    print("They're very cool.")
+                else:
+                    print("They're kinda lame.")
+                current = current.next
+        elif order == 'b': #b for backwards
+            current = self.tail
+            while current:
+                print("Student name:", current.name + ", ID:", current.ID, end=". ")
+                if current.cool:
+                    print("They're very cool.")
+                else:
+                    print("They're kinda lame.")
+                current = current.last
 
     def search(self, name):
         current = self.head
@@ -63,6 +77,7 @@ class LinkedList:
         while current.next.next:
             current = current.next
         current.next = None
+        self.tail = current
 
     def remove(self, index_num):
         if index_num >= self.length:
@@ -78,12 +93,10 @@ class LinkedList:
                 current = current.next
 
 sLine = LinkedList()
-
 sLine.insert("Lily", 889681, False)
 sLine.insert("Kyle", 666666, True)
 sLine.insert("Mossy", 123456, True)
 sLine.insert("Cory", 4, True)
-
-print(sLine.printList(), "\n\n")
-sLine.remove(1)
-print(sLine.printList())
+print(sLine.printList('b'), "\n\n")
+sLine.snip()
+print(sLine.printList('b'))
