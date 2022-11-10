@@ -85,3 +85,21 @@ class L_List:
                 current = current.next
 
 def swap_adj(link):
+    
+
+nums = L_List()
+
+for i in range(4):
+    nums.insert(i)
+
+nums.print()
+print("\n")
+nums.print('b')
+print("\n\n\n")
+
+nums = swap_adj(nums)
+
+nums.print()
+print("\n\n")
+nums.print('b')
+print("\n\n\n")
