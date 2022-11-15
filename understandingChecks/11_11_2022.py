@@ -78,7 +78,7 @@ class L_List:
         current = self.head
         while current:
             if current.ID == ID:
-                return current.type
+                return current
             current = current.next 
 
     def pop(self):
@@ -114,7 +114,8 @@ train = L_List()
 print("Hello! Welcome to the Milady Express!")
 
 while True:
-    print("\n\nPlease select an action: \ntype 1 to add a car, \n2 to print out the entire train, \n3 to search for a car by its ID, \nor 4 to see how many of a certain type of car exist.\n\n")
+    print("""\n\nPlease select an action: \ntype 1 to add a car, \n2 to print out the entire train, \n3 to search for a car by its ID, 
+    4 to see how many of a certain type of car exist, \nor 5 to fill/empty a car by its ID.\n\n""")
 
     var = input()
 
@@ -130,9 +131,9 @@ while True:
         train.print()
     elif var == "3":
         var = int(input("ID: \n"))
-        print(train.IDSearch(var))
+        print(train.IDSearch(var).type)
     elif var == "4":
-        var = input("Car Type:\n")
+        var = input("Car Type:\n").lower()
         cars = 0
 
         currCar = train.head
@@ -143,6 +144,16 @@ while True:
             currCar = currCar.next
 
         print(cars, "\n")
+    elif var == "5":
+        var = input("Would you like to fill or empty a car?\n").lower()
+
+        toChange = int(input("ID: \n"))
+
+        if var == "fill":
+            train.IDSearch(toChange).isFull = True
+        elif var == "empty":
+            train.IDSearch(toChange).isFull = False
+
     elif var == "chugga chugga":
         print("Choo choo!")
         
@@ -151,3 +162,5 @@ while True:
         while currCar:
             currCar.beep()
             currCar = currCar.next
+    else:
+        print("Sorry, I didn't understand that.")
