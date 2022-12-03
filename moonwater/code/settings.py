@@ -1,2 +1,7 @@
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
+
+OVERLAY_POS = {
+    "tools": (40, SCREEN_HEIGHT-15),
+    "seeds": (70, SCREEN_HEIGHT-5)
+}

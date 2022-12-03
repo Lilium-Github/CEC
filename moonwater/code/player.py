@@ -24,14 +24,29 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
 
         #timers
         self.timers = {
-            "tool use": Timer(350, self.use_tool)
+            "tool use": Timer(375, self.use_tool),
+            "tool switch": Timer(225),
+            "seed use": Timer(375, self.use_seed),
+            "seed switch": Timer(225)
         }
 
         #tools
-        self.selected_tool = "axe"
+        self.tools = ["axe", "hoe", "water"]
+        self.tool_index = 0
+        self.selected_tool = self.tools[self.tool_index]
+
+        #seeds
+        self.seeds = ["corn", "tomato"]
+        self.seed_index = 0
+        self.selected_seed = self.seeds[self.seed_index]
 
     def use_tool(self):
-        print(self.selected_tool)
+        #print(self.selected_tool)
+        pass
+
+    def use_seed(self):
+        #print(self.selected_seed)
+        pass
 
     def import_assets(self):
         self.animations = {'up':[], 'down':[], 'left':[], 'right':[],
@@ -42,7 +57,7 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
         }
 
         for animation in self.animations.keys():
-            full_path = 'moonwater/graphics/character/' + animation
+            full_path = 'graphics/character/' + animation
             self.animations[animation] = import_folder(full_path)
 
     def animate(self, dt): #guess what this does
@@ -61,7 +76,24 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
             self.direction = pygame.math.Vector2()
             self.frame_index = 0
 
-        if not self.timers['tool use'].active:
+        if keys[pygame.K_q] and not self.timers["tool switch"].active:
+            self.timers["tool switch"].activate()
+            self.tool_index += 1
+            self.tool_index = self.tool_index if self.tool_index < len(self.tools) else 0
+            self.selected_tool = self.tools[self.tool_index]
+
+        if keys[pygame.K_z]:
+            self.timers["seed use"].activate()
+            self.direction = pygame.math.Vector2()
+            self.frame_index = 0
+
+        if keys[pygame.K_e] and not self.timers["seed switch"].active:
+            self.timers["seed switch"].activate()
+            self.seed_index += 1
+            self.seed_index = self.seed_index if self.seed_index < len(self.seeds) else 0
+            self.selected_seed = self.seeds[self.seed_index]
+
+        if not self.timers['tool use'].active or self.timers['seed use'].active:
 
             if keys[pygame.K_UP]:
                 self.direction.y = -1
@@ -79,12 +111,7 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
                 self.status = "right"
             else: self.direction.x = 0
 
-            if keys[pygame.K_1]:
-                self.selected_tool = "axe"
-            elif keys[pygame.K_2]:
-                self.selected_tool = "hoe"
-            elif keys[pygame.K_3]:
-                self.selected_tool = "water"
+            
 
     def get_status(self):
         if self.direction.magnitude() == 0:
