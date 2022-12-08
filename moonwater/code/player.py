@@ -2,10 +2,13 @@ import pygame
 from settings import *
 from support import *
 from timer import Timer
+from fireball import Fireball
 
 class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite class
     def __init__(self, pos, group):
         super().__init__(group) # gives the Player class access to the functions inside the Group class
+
+        self.group = group
 
         #sprite stuff
         self.import_assets()
@@ -15,7 +18,7 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
         #general setup
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(center = pos)
-
+        self.z = LAYERS["main"]
 
         #movement stuff!
         self.direction = pygame.math.Vector2() # a vector, in python, is like a more mathy list
@@ -31,7 +34,7 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
         }
 
         #tools
-        self.tools = ["axe", "hoe", "water"]
+        self.tools = ["axe", "hoe", "water", "fireball"]
         self.tool_index = 0
         self.selected_tool = self.tools[self.tool_index]
 
@@ -40,9 +43,12 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
         self.seed_index = 0
         self.selected_seed = self.seeds[self.seed_index]
 
+        self.fire = False
+
     def use_tool(self):
-        #print(self.selected_tool)
-        pass
+        if self.selected_tool == "fireball":
+            self.fire = Fireball(self.pos, self.group)
+            self.fire.shoot(self)
 
     def use_seed(self):
         #print(self.selected_seed)
@@ -53,15 +59,17 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
                            'up_idle':[], 'down_idle':[], 'left_idle':[], 'right_idle':[], 
                            'up_hoe':[], 'down_hoe':[], 'left_hoe':[], 'right_hoe':[],
                            'up_axe':[], 'down_axe':[], 'left_axe':[], 'right_axe':[],
-                           'up_water':[], 'down_water':[], 'left_water':[], 'right_water':[]
+                           'up_water':[], 'down_water':[], 'left_water':[], 'right_water':[],
+                           'up_fireball':[], 'down_fireball':[], 'left_fireball':[], 'right_fireball':[]
+
         }
 
         for animation in self.animations.keys():
-            full_path = 'graphics/character/' + animation
+            full_path = 'moonwater/graphics/character/' + animation
             self.animations[animation] = import_folder(full_path)
 
     def animate(self, dt): #guess what this does
-        self.frame_index += 4*dt
+        self.frame_index += 5*dt
 
         if self.frame_index >= len(self.animations[self.status]):
             self.frame_index = 0
@@ -71,7 +79,7 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
     def playerInput(self):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and not self.timers["tool use"].active:
             self.timers["tool use"].activate()
             self.direction = pygame.math.Vector2()
             self.frame_index = 0
@@ -118,7 +126,6 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
             self.status = self.status.split("_")[0] + "_idle"
 
             if self.timers['tool use'].active:
-                print("tool being used")
                 self.status = self.status.split("_")[0] + "_" + self.selected_tool
 
     def update_timers(self):
@@ -138,4 +145,7 @@ class Player(pygame.sprite.Sprite): #this is a child class of pygame's sprite cl
         self.move(dt)
         self.animate(dt)
         self.update_timers()
+
+        if self.fire:
+            self.fire.update(dt)
 
