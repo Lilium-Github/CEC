@@ -1,0 +1,13 @@
+﻿  GameObject.cpp
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(7,33): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(7,27): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(12,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(12,32): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(23,28): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(23,22): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(34,31): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\GameObject.cpp(34,25): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Source.cpp
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\Source.cpp(9,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Generating Code...
+  c++ inheritance.vcxproj -> C:\Users\889681\Source\Repos\cpp-factory-method\x64\Debug\c++ inheritance.exe

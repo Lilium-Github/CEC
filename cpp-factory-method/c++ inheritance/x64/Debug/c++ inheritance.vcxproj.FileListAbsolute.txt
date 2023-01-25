@@ -1,0 +1,1 @@
+C:\Users\889681\source\repos\cpp-factory-method\c++ inheritance\x64\Debug\c++ inheritance.vcxproj.CopyComplete
