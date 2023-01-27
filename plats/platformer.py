@@ -16,37 +16,168 @@ NONE = 4
 
 fill = 0
 
-
-player = pygame.image.load('sheep.png') #load your spritesheet
-player.set_colorkey((255, 0, 255))
-
-
 #player variables
-xpos = 500 #xpos of player
-ypos = 700 #ypos of player
-vx = 0 #x velocity of player
-vy = 0 #y velocity of player
+#xpos = 500 #xpos of player
+#ypos = 700 #ypos of player
+#vx = 0 #x velocity of player
+#vy = 0 #y velocity of player
 keys = [False, False, False, False, False] #this list holds whether each key has been pressed
-isOnGround = False #this variable stops gravity from pulling you down more when on a platform
+#isOnGround = False #this variable stops gravity from pulling you down more when on a platform
 offset = 0
-jumps = 1
-airJump = False
+#jumps = 1
+#airJump = False
 lvl = 1
-playerColor = (97, 255, 139)
 
 #variables for animation
-frameWidth = 20
-frameHeight = 20
-RowNum = 0 #for left animation, this will need to change for other animations
-frameNum = 0
-ticker = 0
+# frameWidth = 20
+# frameHeight = 20
+# RowNum = 0 #for left animation, this will need to change for other animations
+# frameNum = 0
+# ticker = 0
 
-class enemy:
+class Player:
+    def __init__(self):
+        self.xpos = 500 #xpos of player
+        self.ypos = 700 #ypos of player
+        self.vx = 0 #x velocity of player
+        self.vy = 0 #y velocity of player
+
+        # jumping variables
+        self.isOnGround = False
+        self.jumps = 1
+        self.airJump = False
+
+        # animation variables
+        self.sprite = pygame.image.load('plats/sheep.png') #load your spritesheet
+        self.framesize = 20
+        self.RowNum = 0
+        self.frameNum = 0
+        self.ticker = 0
+
+    def draw(self):
+        # ANIMATION
+        if keys[RIGHT]==True:
+            self.RowNum = 0
+            # Ticker is a spedometer. We don't want Link animating as fast as the
+            # processor can process! Update Animation Frame each time ticker goes over
+            self.ticker+=1
+            if self.ticker%10==0: #only change frames every 10 ticks
+                self.frameNum+=1
+                #If we are over the number of frames in our sprite, reset to 0.
+                #In this particular case, there are 4 frames (0 through 3)
+            if self.frameNum>3: 
+                self.frameNum = 0
+        elif keys[LEFT]==True: #left animation
+            self.RowNum = 1
+            self.ticker+=1
+            if self.ticker%10==0:
+                self.frameNum+=1
+            if self.frameNum>3: 
+                self.frameNum = 0
+
+        screen.blit(self.sprite, (self.xpos, self.ypos), (self.framesize*self.frameNum, self.RowNum*self.framesize, self.framesize, self.framesize))
+
+    def update(self, offset, plats):
+        # left movement
+        if keys[LEFT]==True:
+            if self.xpos > 300:
+                self.vx = -5
+                offset = 0
+            else:
+                self.xpos = 300
+                offset = 5
+                self.vx = 0
+            self.direction = LEFT
+            
+        # right movement
+        elif keys[RIGHT]==True:
+            if self.xpos < 700:
+                self.vx = 5
+                offset = 0
+            else:
+                self.xpos = 700
+                self.vx = 0
+                offset = -5
+            self.direction = RIGHT
+
+        # turn off velocity
+        else:
+            self.vx = 0
+            offset = 0
+
+        self.isOnGround = False
+
+        # platform collision
+        for i in range(len(plats)):
+             if plats[i].collide(self.xpos, self.ypos) != False and keys[DOWN] == False:
+                self.jumps = 1
+                if self.vy > 0:
+                    self.vy = 0
+                self.ypos = plats[i].collide(self.xpos, self.ypos)
+                self.isOnGround = True
+                if plats[i].bounce:
+                    plats[i].y += 10
+                    self.vy -= 15
+                else: 
+                    self.airJump = False
+                
+                if self.xpos > 300 and self.xpos < 700:
+                    self.xpos += plats[i].adder * 2
+                else:
+                    offset -= plats[i].adder * 2
+
+
+        if self.ypos > 780:
+            self.jumps = 1
+            self.isOnGround = True
+            self.vy = 0
+            self.ypos = 780
+            self.airJump = False
+
+        #JUMPING
+        if keys[UP] and self.jumps > 0 and self.airJump or keys[UP] and self.isOnGround: #only jump when on the ground
+            self.vy = -8.8
+            self.direction = UP
+            if self.isOnGround == True and self.airJump == False:
+                self.isOnGround = False
+                print("groundjump")
+                self.airJump = False
+                pygame.mixer.Sound.play(jump_sound)
+            elif self.isOnGround == False and self.airJump:
+                self.jumps -= 1
+                print("airjump")
+                pygame.mixer.Sound.play(double_jump_sound)
+            
+        #gravity
+        if self.isOnGround == False:
+            self.vy+=.4 #notice this grows over time, aka ACCELERATION
+            if keys[UP] == False:
+                self.airJump = True
+        if offset < 0:
+            offset+=.2
+        elif offset > 0:
+            offset-=.2
+        if self.vx < 0:
+            self.vx +=.2
+        elif self.vx > 0:
+            self.vx -= .2
+        
+        
+
+        #update player position
+        self.xpos+=self.vx 
+        self.ypos+=self.vy
+        
+        return offset
+
+        
+
+class Enemy:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.size = 16
-        self.image = pygame.image.load('enemy.png')
+        self.image = pygame.image.load('plats/enemy.png')
         self.dir = 0
     def draw(self):
         screen.blit(self.image, (self.x, self.y))
@@ -64,7 +195,7 @@ class enemy:
             self.dir = random.randrange(0,4)
         
 
-class star:
+class Star:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -82,7 +213,7 @@ class star:
 
 
 
-class platform:
+class Platform:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -117,24 +248,25 @@ class platform:
         if self.y > self.startY:
             self.y -= 1
         
+player = Player()
 
 starbag = list()
 for i in range(100):
-    starbag.append(star(random.randrange(-1600, 2400), random.randrange(0,800)))
+    starbag.append(Star(random.randrange(-1600, 2400), random.randrange(0,800)))
     
 enemies = list()
 for i in range(20):
     val = random.randrange(1, 40) + (40*i)
-    enemies.append(enemy(random.randrange(-1600, 2400), val))    
+    enemies.append(Enemy(random.randrange(-1600, 2400), val))    
 
 plats = list()
 for i in range(40):
     val = random.randrange(1, 40) + (20*i)
-    plats.append(platform(random.randrange(-1600, 2400), val))
+    plats.append(Platform(random.randrange(-1600, 2400), val))
 
-jump_sound = pygame.mixer.Sound('jump.wav')
-double_jump_sound = pygame.mixer.Sound('double_jump.wav')
-music = pygame.mixer.music.load('music.wav')
+jump_sound = pygame.mixer.Sound('plats/jump.wav')
+double_jump_sound = pygame.mixer.Sound('plats/double_jump.wav')
+music = pygame.mixer.music.load('plats/music.wav')
 pygame.mixer.music.play(-1)
 
 while not gameover: #GAME LOOP############################################################
@@ -158,9 +290,6 @@ while not gameover: #GAME LOOP##################################################
             if event.key == pygame.K_DOWN:
                 keys[DOWN]=True
                 
-            if event.key == pygame.K_SPACE:
-                keys[SPACE]=True
-                
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 keys[LEFT]=False
@@ -173,58 +302,10 @@ while not gameover: #GAME LOOP##################################################
                 
             if event.key == pygame.K_DOWN:
                 keys[DOWN]= False
-                
-            if event.key == pygame.K_SPACE:
-                keys[SPACE]= False
           
-    #physics section--------------------------------------------------------------------
-    #LEFT MOVEMENT
-    if keys[LEFT]==True:
-        if xpos > 300:
-            vx = -5
-            offset = 0
-        else:
-            xpos = 300
-            offset = 5
-            vx = 0
-        direction = LEFT
-        
-    elif keys[RIGHT]==True:
-        if xpos < 700:
-            vx = 5
-            offset = 0
-        else:
-            xpos = 700
-            vx = 0
-            offset = -5
-        direction = RIGHT
+    #physics section--------------------------------------------------------------------    
 
-    #turn off velocity
-    else:
-        vx = 0
-        offset = 0
-        
-    
-    
-    isOnGround = False
-    
-    for i in range(len(plats)):
-        if plats[i].collide(xpos, ypos) != False and keys[DOWN] == False:
-            jumps = 1
-            if vy > 0:
-                vy = 0
-            ypos = plats[i].collide(xpos, ypos)
-            isOnGround = True
-            if plats[i].bounce:
-                plats[i].y += 10
-                vy -= 15
-            else: 
-                airJump = False
-            
-            if xpos > 300 and xpos < 700:
-                xpos += plats[i].adder * 2
-            else:
-                offset -= plats[i].adder * 2
+    offset = player.update(offset, plats)
     
     for j in range(len(plats)):
         plats[j].update(offset)
@@ -235,93 +316,23 @@ while not gameover: #GAME LOOP##################################################
     for i in range(len(enemies)):
         enemies[i].update(offset)
         
-                   
-        
-        
-        #stop falling if on bottom of game screen
-    if ypos > 780:
-        jumps = 1
-        isOnGround = True
-        vy = 0
-        ypos = 780
-        airJump = False
-        
-    if ypos < -19:
-        ypos =+ 750
+    if player.ypos < -19:
+        player.ypos =+ 750
         lvl += 1
         plats = list()
         for i in range(40):
             val = random.randrange(1, 10) + (20*i)
-            plats.append(platform(random.randrange(-1600, 2400), val))
+            plats.append(Platform(random.randrange(-1600, 2400), val))
             plats[i].adder = (plats[i].adder * lvl / 4) + plats[i].adder
         starbag = list()
         for i in range(110 + (lvl * 10)):
-            starbag.append(star(random.randrange(-1600, 2400), random.randrange(0,800)))
+            starbag.append(Star(random.randrange(-1600, 2400), random.randrange(0,800)))
         enemies = list()
         for i in range(40):
             val = random.randrange(1, 40) + (20*i)
-            enemies.append(enemy(random.randrange(-1600, 2400), val))
+            enemies.append(Enemy(random.randrange(-1600, 2400), val))
 
-    #JUMPING
-    if keys[UP] and jumps > 0 and airJump or keys[UP] and isOnGround: #only jump when on the ground
-        vy = -8.8
-        direction = UP
-        if isOnGround == True and airJump == False:
-            isOnGround = False
-            #print("groundjump")
-            airJump = False
-            pygame.mixer.Sound.play(jump_sound)
-        elif isOnGround == False and airJump:
-            jumps -= 1
-            #print("airjump")
-            pygame.mixer.Sound.play(double_jump_sound)
     
-    
-            
-    #gravity
-    if isOnGround == False:
-        vy+=.4 #notice this grows over time, aka ACCELERATION
-        if keys[UP] == False:
-            airJump = True
-    if offset < 0:
-        offset+=.2
-    elif offset > 0:
-        offset-=.2
-    if vx < 0:
-        vx +=.2
-    elif vx > 0:
-        vx -= .2
-    
-
-    #update player position
-    xpos+=vx 
-    ypos+=vy
-    
-    if isOnGround or jumps > 0:
-        playerColor = (97, 255, 139)
-    else:
-        playerColor = (242, 0, 202)
-        
-    # ANIMATION
-    if keys[RIGHT]==True:
-        RowNum = 0
-        # Ticker is a spedometer. We don't want Link animating as fast as the
-        # processor can process! Update Animation Frame each time ticker goes over
-        ticker+=1
-        if ticker%10==0: #only change frames every 10 ticks
-          frameNum+=1
-           #If we are over the number of frames in our sprite, reset to 0.
-           #In this particular case, there are 10 frames (0 through 9)
-        if frameNum>3: 
-           frameNum = 0
-    elif keys[LEFT]==True: #left animation
-        RowNum = 1
-        ticker+=1
-        if ticker%10==0:
-          frameNum+=1
-        if frameNum>3: 
-           frameNum = 0
-        
   
     # RENDER Section--------------------------------------------------------------------------------
             
@@ -333,11 +344,11 @@ while not gameover: #GAME LOOP##################################################
         
     for i in range(len(enemies)):
         enemies[i].draw()
-        
-    screen.blit(player, (xpos, ypos), (frameWidth*frameNum, RowNum*frameHeight, frameWidth, frameHeight))
     
     for i in range(len(plats)):
         plats[i].draw()
+
+    player.draw()
                    
     pygame.display.flip()#this actually puts the pixel on the screen
     
